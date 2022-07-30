@@ -18,6 +18,7 @@ COPY source-abc target-abc
 RUN ./some-command.sh
 COPY source-def target-def
 FROM builder as development
+COPY source-123 source-456 /target-dir
 FROM ubuntu as another
 FROM another as testing"""
     parser = DockerfileParser(content)
@@ -45,6 +46,8 @@ FROM another as testing"""
 
     assert dockerinfo.stages[4].name == "development"
     assert dockerinfo.stages[4].is_external is False
-    assert dockerinfo.stages[4].copies == []
+    assert dockerinfo.stages[4].copies == [
+        CopyTask(source_stage="filesystem", source=["source-123", "source-456"], target="/target-dir"),
+    ]
 
     assert dockerinfo.terminal_stages == set(["production", "development", "testing"])

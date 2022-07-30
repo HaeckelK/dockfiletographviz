@@ -21,8 +21,6 @@ class DockerfileParser:
         from_pattern = r"FROM\s([\S]+)"
         from_as_pattern = r"FROM\s([\S]+) as ([\S]+)"
 
-        copy_pattern = r"COPY\s([\S]+)\s([\S]+)"
-
         stage_name = ""
         current_stage: Optional[Stage] = None
 
@@ -40,11 +38,15 @@ class DockerfileParser:
                 current_stage = Stage(name=stage_name, parent=as_matches.group(1))
                 dockerfile.add_stage(current_stage)
 
-            copy_matches = re.match(copy_pattern, line)
-            if copy_matches:
-                copy_task = CopyTask(
-                    source_stage="filesystem", source=copy_matches.group(1).split(" "), target=copy_matches.group(2)
-                )
+            if line.startswith("COPY "):
+                copy_matches = [x for x in re.findall(r"[\S]+", line)]
+                # Last position is destination
+                target = copy_matches[-1]
+                # First position is COPY
+                source = copy_matches[1:-1]
+
+                copy_task = CopyTask(source_stage="filesystem", source=source, target=target)
+
                 if current_stage:
                     current_stage.add_copy_task(copy_task)
                 else:
