@@ -3,9 +3,17 @@ from typing import List, Set
 
 
 @dataclass
+class CopyTask:
+    source_stage: str
+    source: List[str]
+    target: str
+
+
+@dataclass
 class Stage:
     name: str
     parent: str
+    copies: List[CopyTask] = field(default_factory=list)
 
     @property
     def is_external(self) -> bool:
@@ -14,6 +22,9 @@ class Stage:
     @property
     def has_parent(self) -> bool:
         return self.parent != ""
+
+    def add_copy_task(self, copy_task: CopyTask) -> None:
+        return self.copies.append(copy_task)
 
 
 @dataclass
