@@ -31,8 +31,6 @@ class DockerfileParser:
                     dockerfile.add_stage(Stage(name=stage_name, parent=""))
 
             if as_matches:
-                dockerfile.add_stage(
-                    Stage(name=as_matches.group(2), parent=as_matches.group(1))
-                )
+                dockerfile.add_stage(Stage(name=as_matches.group(2), parent=as_matches.group(1)))
 
         return dockerfile
