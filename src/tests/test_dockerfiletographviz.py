@@ -1,3 +1,5 @@
+import pytest
+
 from dockerfiletographviz import __version__
 from dockerfiletographviz.parser import DockerfileParser, copy_task_parser
 from dockerfiletographviz.models import CopyTask
@@ -69,10 +71,21 @@ def test_copy_task_parser_multiple():
     assert copy_task == CopyTask(source_stage="filesystem", source=["abc", "def", "ghi"], target="xyz")
 
 
-def test_copy_task_parser_chown_multiple():
-    # GIVEN a COPY line with multiple source files and chown
+@pytest.mark.xfail
+def test_copy_task_parser_chown():
+    # GIVEN a COPY line with chown
     line = "COPY --chown=55:mygroup files* /somedir/"
     # WHEN parsing into CopyTask
     copy_task = copy_task_parser(line)
-    # THEN chown is not recognised as separate element, but included as a source item
-    assert copy_task == CopyTask(source_stage="filesystem", source=["--chown=55:mygroup", "files*"], target="/somedir/")
+    # THEN chown is not included in source elements
+    assert copy_task == CopyTask(source_stage="filesystem", source=["files*"], target="/somedir/")
+
+
+@pytest.mark.xfail
+def test_copy_task_parser_from_multiple():
+    # GIVEN a COPY line with multiple source files and from another build stage
+    line = "COPY --from=some-stage abc def xyz"
+    # WHEN parsing into CopyTask
+    copy_task = copy_task_parser(line)
+    # THEN source stage is parsed, and from= not included in source elements
+    assert copy_task == CopyTask(source_stage="filesystem", source=["abc", "def"], target="xyz")
