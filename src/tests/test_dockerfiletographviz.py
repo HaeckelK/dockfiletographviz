@@ -67,3 +67,12 @@ def test_copy_task_parser_multiple():
     copy_task = copy_task_parser(line)
     # THEN
     assert copy_task == CopyTask(source_stage="filesystem", source=["abc", "def", "ghi"], target="xyz")
+
+
+def test_copy_task_parser_chown_multiple():
+    # GIVEN a COPY line with multiple source files and chown
+    line = "COPY --chown=55:mygroup files* /somedir/"
+    # WHEN parsing into CopyTask
+    copy_task = copy_task_parser(line)
+    # THEN chown is not recognised as separate element, but included as a source item
+    assert copy_task == CopyTask(source_stage="filesystem", source=["--chown=55:mygroup", "files*"], target="/somedir/")

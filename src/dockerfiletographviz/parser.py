@@ -58,6 +58,8 @@ def copy_task_parser(line: str) -> CopyTask:
     NO
     COPY [--chown=<user>:<group>] <src>... <dest>
     COPY [--chown=<user>:<group>] ["<src>",... "<dest>"]
+
+    Aim is to match cases defined by Docker: https://docs.docker.com/engine/reference/builder/#copy
     """
     copy_matches = [x for x in re.findall(r"[\S]+", line)]
     # Last position is destination
