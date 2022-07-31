@@ -1,5 +1,5 @@
 from dockerfiletographviz import __version__
-from dockerfiletographviz.parser import DockerfileParser
+from dockerfiletographviz.parser import DockerfileParser, copy_task_parser
 from dockerfiletographviz.models import CopyTask
 
 
@@ -49,3 +49,21 @@ FROM another as testing"""
     ]
 
     assert dockerinfo.terminal_stages == set(["production", "development", "testing"])
+
+
+def test_copy_task_parser_single():
+    # GIVEN a COPY line with single source file
+    line = "COPY abc def"
+    # WHEN parsing into CopyTask
+    copy_task = copy_task_parser(line)
+    # THEN
+    assert copy_task == CopyTask(source_stage="filesystem", source=["abc"], target="def")
+
+
+def test_copy_task_parser_multiple():
+    # GIVEN a COPY line with multiple source files
+    line = "COPY abc def ghi xyz"
+    # WHEN parsing into CopyTask
+    copy_task = copy_task_parser(line)
+    # THEN
+    assert copy_task == CopyTask(source_stage="filesystem", source=["abc", "def", "ghi"], target="xyz")

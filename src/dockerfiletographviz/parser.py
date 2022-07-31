@@ -39,13 +39,7 @@ class DockerfileParser:
                 dockerfile.add_stage(current_stage)
 
             if line.startswith("COPY "):
-                copy_matches = [x for x in re.findall(r"[\S]+", line)]
-                # Last position is destination
-                target = copy_matches[-1]
-                # First position is COPY
-                source = copy_matches[1:-1]
-
-                copy_task = CopyTask(source_stage="filesystem", source=source, target=target)
+                copy_task = copy_task_parser(line)
 
                 if current_stage:
                     current_stage.add_copy_task(copy_task)
@@ -53,3 +47,23 @@ class DockerfileParser:
                     print("Error copy task outside of a build stage")
 
         return dockerfile
+
+
+def copy_task_parser(line: str) -> CopyTask:
+    """Examples needed
+    YES
+    COPY <src>... <dest>
+    COPY ["<src>",... "<dest>"]
+
+    NO
+    COPY [--chown=<user>:<group>] <src>... <dest>
+    COPY [--chown=<user>:<group>] ["<src>",... "<dest>"]
+    """
+    copy_matches = [x for x in re.findall(r"[\S]+", line)]
+    # Last position is destination
+    target = copy_matches[-1]
+
+    # First position is COPY
+    source = copy_matches[1:-1]
+
+    return CopyTask(source_stage="filesystem", source=source, target=target)
