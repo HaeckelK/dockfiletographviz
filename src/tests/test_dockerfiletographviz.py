@@ -1,8 +1,6 @@
-from dataclasses import asdict
-
 from dockerfiletographviz import __version__
 from dockerfiletographviz.parser import DockerfileParser
-from dockerfiletographviz.models import Dockerfile, Stage, CopyTask
+from dockerfiletographviz.models import CopyTask
 
 
 def test_version():
